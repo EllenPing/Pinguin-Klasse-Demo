@@ -1,0 +1,1383 @@
+  <!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+body{
+  background:#dff4ff;
+  font-family:"Trebuchet MS",Arial,sans-serif;
+}
+
+#arktis{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+
+/* TITEL */
+
+.kopf{
+  position:fixed;
+  top:4%;
+  left:50%;
+  transform:translateX(-50%);
+  width:70%;
+  text-align:center;
+  z-index:5;
+  color:#174b6b;
+}
+
+.kopf h1{
+  margin:0;
+  font-size:clamp(30px,4vw,58px);
+  color:white;
+  text-shadow:
+    0 3px 0 #397aa1,
+    0 5px 12px rgba(20,70,100,.25);
+}
+
+
+/* WOCHENZIEL */
+
+.ziel{
+  display:inline-flex;
+  flex-direction:column;
+  margin-top:8px;
+  padding:10px 28px 12px;
+  background:rgba(255,255,255,.78);
+  border:2px solid rgba(255,255,255,.9);
+  border-radius:22px;
+  box-shadow:0 5px 16px rgba(39,102,137,.15);
+}
+
+.ziel span{
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  color:#6191aa;
+}
+
+.ziel strong{
+  margin-top:3px;
+  font-size:clamp(16px,1.7vw,24px);
+}
+
+
+/* KLEINER STIFT OBEN LINKS */
+
+.zielBearbeiten{
+  position:fixed;
+  left:12px;
+  top:12px;
+  z-index:20;
+  width:30px;
+  height:30px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:50%;
+  background:rgba(255,255,255,.55);
+  box-shadow:0 2px 6px rgba(30,88,120,.10);
+  font-size:14px;
+  cursor:pointer;
+}
+
+
+/* ERFOLGREICHE WOCHEN */
+
+.wochen{
+  position:fixed;
+  top:4%;
+  right:3%;
+  z-index:6;
+  padding:10px 17px;
+  border-radius:18px;
+  background:rgba(255,255,255,.82);
+  color:#28637f;
+  font-weight:700;
+  font-size:15px;
+  box-shadow:0 4px 14px rgba(35,91,122,.15);
+}
+
+
+/* WOCHENTAGE */
+
+.tage{
+  position:fixed;
+  left:1%;
+  top:12%;
+  z-index:6;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.tag{
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  background:rgba(255,255,255,.95);
+  border:2px solid rgba(255,255,255,.95);
+  box-shadow:0 4px 12px rgba(30,88,120,.16);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:8px;
+  box-sizing:border-box;
+  color:#28637f;
+}
+.tag.stundenTagAktiv{
+  box-shadow:
+    0 0 0 4px rgba(255,255,255,.75),
+    0 0 0 7px rgba(55,170,105,.95),
+    0 4px 12px rgba(30,88,120,.16);
+}
+.tag span{
+  font-size:15px;
+  font-weight:700;
+}
+/* STUNDENLEISTE RECHTS */
+
+.stunden{
+  position:fixed;
+  right:1%;
+  top:18%;
+  z-index:6;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.stunde{
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  background:rgba(255,255,255,.95);
+  border:2px solid rgba(255,255,255,.95);
+  box-shadow:0 4px 12px rgba(30,88,120,.16);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:8px;
+  box-sizing:border-box;
+  color:#28637f;
+}
+
+.stunde span{
+  font-size:15px;
+  font-weight:700;
+}
+.stunde .stundenErgebnis img{
+  display:block;
+  width:34px;
+  height:34px;
+  object-fit:contain;
+}
+  .tag .ergebnis{
+  margin-top:1px;
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.tag .ergebnis img{
+  display:block;
+  width:34px;
+  height:34px;
+  object-fit:contain;
+}
+
+
+/* BUTTONS UNTEN */
+
+
+.neueWoche{
+  display:none;
+  position:fixed;
+  right:3%;
+  bottom:16%;
+  z-index:10;
+  border:2px solid rgba(255,255,255,.95);
+  border-radius:18px;
+  padding:9px 17px;
+  background:rgba(255,255,255,.78);
+  box-shadow:0 4px 14px rgba(30,88,120,.15);
+  color:#39738f;
+  font:700 14px "Trebuchet MS",Arial,sans-serif;
+  cursor:pointer;
+}
+
+
+/* FENSTER */
+
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(24,75,103,.35);
+  align-items:center;
+  justify-content:center;
+}
+
+.fenster{
+  position:relative;
+  width:420px;
+  max-width:80%;
+  padding:30px;
+  border:3px solid white;
+  border-radius:28px;
+  background:#f5fcff;
+  box-shadow:0 12px 35px rgba(25,75,105,.28);
+  text-align:center;
+  color:#28637f;
+}
+
+.fenster h2{
+  margin:0 25px 8px;
+  font-size:25px;
+}
+
+.fenster p{
+  margin:0 0 20px;
+  font-size:16px;
+}
+
+.schliessen{
+  position:absolute;
+  right:14px;
+  top:8px;
+  border:0;
+  background:transparent;
+  color:#56859d;
+  font-size:30px;
+  cursor:pointer;
+}
+
+
+/* TEXTEINGABEN */
+
+#wochenzielEingabe,
+#neuesWochenzielEingabe{
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  min-height:90px;
+  margin:18px 0;
+  padding:14px;
+  resize:none;
+  border:2px solid #c8e5f2;
+  border-radius:18px;
+  outline:none;
+  background:white;
+  color:#28637f;
+  font:16px "Trebuchet MS",Arial,sans-serif;
+}
+
+#wochenzielEingabe:focus,
+#neuesWochenzielEingabe:focus{
+  border-color:#75b9d8;
+}
+
+.zielButtons,
+.bestaetigung{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+}
+
+.zielButtons button,
+.bestaetigung button{
+  border:2px solid white;
+  border-radius:18px;
+  padding:10px 20px;
+  background:#dceff8;
+  color:#28637f;
+  font:700 15px "Trebuchet MS",Arial,sans-serif;
+  cursor:pointer;
+}
+
+
+/* REFLEXION */
+
+.tagauswahl{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  margin:0 0 18px;
+}
+
+.tagauswahl button{
+  width:48px;
+  height:38px;
+  border:2px solid white;
+  border-radius:14px;
+  background:#dceff8;
+  color:#39738f;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.tagauswahl button.aktiv{
+  background:#75b9d8;
+  color:white;
+  transform:scale(1.06);
+}
+
+.auswahl{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+}
+
+.auswahl button{
+  width:46%;
+  min-height:150px;
+  border:2px solid white;
+  border-radius:22px;
+  background:#e8f7fd;
+  color:#28637f;
+  box-shadow:0 4px 12px rgba(30,88,120,.12);
+  font:700 14px "Trebuchet MS",Arial,sans-serif;
+  cursor:pointer;
+}
+
+.reflexionsBild{
+  display:block;
+  width:100px;
+  height:auto;
+  object-fit:contain;
+  margin:0 auto 7px;
+}
+
+.auswahl button span{
+  display:block;
+  margin-top:5px;
+  font-size:14px;
+}
+
+.weiter{
+  border:2px solid white;
+  border-radius:18px;
+  padding:10px 24px;
+  background:#dceff8;
+  color:#28637f;
+  font:700 16px "Trebuchet MS",Arial,sans-serif;
+  cursor:pointer;
+}
+
+
+/* ARKTIS-BELOHNUNGEN */
+
+#eisscholle{
+  display:none;
+  position:fixed;
+  left:55%;
+  top:60%;
+  width:260px;
+  z-index:3;
+}
+
+#eisschollenBild{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+#schollenPinguin{
+  display:none;
+  position:absolute;
+  width:105px;
+  left:78px;
+  top:-40px;
+  z-index:4;
+  transform:rotate(2deg);
+}
+
+#schollenPinguin img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+#seerobbe{
+  display:none;
+  position:fixed;
+  left:6%;
+  bottom:3%;
+  width:150px;
+  z-index:4;
+  transform:rotate(-4deg);
+}
+
+#seerobbe img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- KLEINER STIFT -->
+
+<button
+  class="zielBearbeiten"
+  onclick="oeffneWochenziel()"
+  aria-label="Wochenziel bearbeiten">
+  ✏️
+</button>
+
+
+<!-- HINTERGRUND -->
+
+<img
+  id="arktis"
+  src="https://i.ibb.co/T6nd5yQ/FDB7-D0-F2-8425-44-BA-9593-890-E4-CADFF7-B.png"
+  alt="Unsere Arktis"
+>
+
+
+<!-- BELOHNUNGEN -->
+
+<div id="eisscholle">
+
+  <img
+    id="eisschollenBild"
+    src="https://i.ibb.co/xqmP6mg4/F61-D5683-8-C15-48-AB-AEB1-28942088-EF49.png"
+    alt="Eisscholle"
+  >
+
+  <div id="schollenPinguin">
+
+    <img
+      src="https://i.ibb.co/LhrHLZbT/3208870-D-98-D2-47-C8-9-CFC-85-AED0-C10028.png"
+      alt="Pinguin"
+    >
+
+  </div>
+
+</div>
+
+
+<div id="seerobbe">
+
+  <img
+    src="https://i.ibb.co/FLN8pxpX/2-C668-FA7-2766-44-D6-AA5-C-E0775-B989823.png"
+    alt="Seerobbe"
+  >
+
+</div>
+
+
+<!-- TITEL + WOCHENZIEL -->
+
+<div class="kopf">
+
+  <h1>Unsere Pinguin-Klasse</h1>
+
+  <div class="ziel">
+
+    <span>Unser Wochenziel</span>
+
+    <strong id="wochenzielText">
+      Wir hören einander gut zu.
+    </strong>
+
+  </div>
+
+</div>
+
+
+<!-- WOCHENZÄHLER -->
+
+<div class="wochen">
+  ★ Erfolgreiche Wochen:
+  <strong id="wochenZahl">0</strong>
+</div>
+
+
+<!-- WOCHENTAGE -->
+
+<div class="tage">
+
+  <div class="tag" onclick="waehleStundenTag('MO', this)"><span>MO</span><div class="ergebnis"></div></div>
+<div class="tag" onclick="waehleStundenTag('DI', this)"><span>DI</span><div class="ergebnis"></div></div>
+<div class="tag" onclick="waehleStundenTag('MI', this)"><span>MI</span><div class="ergebnis"></div></div>
+<div class="tag" onclick="waehleStundenTag('DO', this)"><span>DO</span><div class="ergebnis"></div></div>
+<div class="tag" onclick="waehleStundenTag('FR', this)"><span>FR</span><div class="ergebnis"></div></div>
+
+</div>
+<!-- STUNDENLEISTE RECHTS -->
+<div class="stunden">
+  <div class="stunde" onclick="oeffneStundenReflexion(0)"><span>1.</span><div class="stundenErgebnis"></div></div>
+  <div class="stunde" onclick="oeffneStundenReflexion(1)"><span>2.</span><div class="stundenErgebnis"></div></div>
+<div class="stunde" onclick="oeffneStundenReflexion(2)"><span>3.</span><div class="stundenErgebnis"></div></div>
+<div class="stunde" onclick="oeffneStundenReflexion(3)"><span>4.</span><div class="stundenErgebnis"></div></div>
+</div>
+
+<!-- BUTTONS -->
+
+<button
+  class="neueWoche"
+  id="neueWocheButton"
+  onclick="frageNeueWoche()">
+  ❄️ Neue Woche
+</button>
+
+
+
+<!-- WOCHENZIEL MIT STIFT ÄNDERN -->
+
+<div class="overlay" id="wochenzielFenster">
+
+  <div class="fenster">
+
+    <button
+      class="schliessen"
+      onclick="schliesseWochenziel()">
+      ×
+    </button>
+
+    <h2>Wochenziel ändern ✏️</h2>
+
+    <p>Unser neues Wochenziel:</p>
+
+    <textarea
+      id="wochenzielEingabe"
+      maxlength="150"
+      placeholder="Wochenziel hier eintippen …"></textarea>
+
+    <div class="zielButtons">
+
+      <button onclick="speichereWochenziel()">
+        Speichern
+      </button>
+
+      <button onclick="schliesseWochenziel()">
+        Abbrechen
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- TAGESREFLEXION -->
+
+<div class="overlay" id="reflexionsFenster">
+
+  <div class="fenster">
+
+    <button
+      class="schliessen"
+      onclick="schliesseReflexion()">
+      ×
+    </button>
+
+    <h2 id="reflexionsTitel">Unsere Tagesreflexion</h2>
+
+    <p id="reflexionsFrage">
+      Wie hat es heute mit unserem Wochenziel geklappt?
+    </p>
+
+    <div class="tagauswahl" id="reflexionsTage">
+
+      <button onclick="waehleTag(0,this)">MO</button>
+      <button onclick="waehleTag(1,this)">DI</button>
+      <button onclick="waehleTag(2,this)">MI</button>
+      <button onclick="waehleTag(3,this)">DO</button>
+      <button onclick="waehleTag(4,this)">FR</button>
+
+    </div>
+
+    <div class="auswahl">
+
+      <button onclick="speichereErgebnis('🐧')">
+
+        <img
+          class="reflexionsBild"
+          src="https://i.ibb.co/JjZHzVWG/7-FB6-AE73-FCEE-40-DF-94-A2-5-AE8-DBFA8290.png"
+          alt="Blüte"
+        >
+
+        <span>Wir haben es geschafft!</span>
+
+      </button>
+
+
+      <button onclick="speichereErgebnis('❄️')">
+
+        <img
+          class="reflexionsBild"
+          src="https://i.ibb.co/wx7ydx9/CA9-A2882-422-E-4267-A9-A0-7580-F7565-ADA.png"
+          alt="Samen"
+        >
+
+        <span>Wir bleiben dran!</span>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- WOCHENERGEBNIS -->
+
+<div class="overlay" id="wochenFenster">
+
+  <div class="fenster">
+
+    <h2 id="wochenTitel"></h2>
+
+    <p id="wochenText"></p>
+
+    <button
+      class="weiter"
+      onclick="schliesseWochenFenster()">
+      Weiter
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- NEUE WOCHE + NEUES ZIEL -->
+
+<div class="overlay" id="neueWocheFenster">
+
+  <div class="fenster">
+
+    <button
+      class="schliessen"
+      onclick="schliesseNeueWocheFenster()">
+      ×
+    </button>
+
+    <h2>Neue Woche starten? ❄️</h2>
+
+    <p>
+      Wie lautet unser neues Wochenziel?
+    </p>
+
+    <textarea
+      id="neuesWochenzielEingabe"
+      maxlength="150"
+      placeholder="Neues Wochenziel hier eintippen …"></textarea>
+
+    <p>
+      Die Ergebnisse von Montag bis Freitag werden geleert.<br>
+      Die Arktis bleibt erhalten.
+    </p>
+
+    <div class="bestaetigung">
+
+      <button onclick="starteNeueWoche()">
+        Ja, neue Woche starten
+      </button>
+
+      <button onclick="schliesseNeueWocheFenster()">
+        Abbrechen
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const pinguinKopfBild =
+  "https://i.ibb.co/JjZHzVWG/7-FB6-AE73-FCEE-40-DF-94-A2-5-AE8-DBFA8290.png";
+
+const eisbergBild =
+  "https://i.ibb.co/wx7ydx9/CA9-A2882-422-E-4267-A9-A0-7580-F7565-ADA.png";
+
+
+let ausgewaehlterTag = 0;
+let erfolgreicheWochen = 0;
+let wocheSchonGewertet = false;
+
+
+/* WOCHENZIEL MIT STIFT ÄNDERN */
+
+function oeffneWochenziel(){
+
+  const aktuellesZiel =
+    document.getElementById("wochenzielText").textContent.trim();
+
+  document.getElementById("wochenzielEingabe").value =
+    aktuellesZiel;
+
+  document.getElementById("wochenzielFenster").style.display =
+    "flex";
+
+  document.getElementById("wochenzielEingabe").focus();
+}
+
+
+function schliesseWochenziel(){
+
+  document.getElementById("wochenzielFenster").style.display =
+    "none";
+}
+
+
+function speichereWochenziel(){
+
+  const neuesZiel =
+    document.getElementById("wochenzielEingabe").value.trim();
+
+  if(neuesZiel === ""){
+    return;
+  }
+
+  document.getElementById("wochenzielText").textContent =
+    neuesZiel;
+speichereSupabaseState();
+  schliesseWochenziel();
+}
+
+
+/* REFLEXION */
+let aktuellerStundenTag = null;
+
+function waehleStundenTag(tag, element){
+
+  const tagGewechselt =
+    aktuellerStundenTag !== null &&
+    aktuellerStundenTag !== tag;
+
+  if (tagGewechselt) {
+    document.querySelectorAll(".stundenErgebnis")
+      .forEach(function(feld){
+        feld.innerHTML = "";
+        feld.dataset.symbol = "";
+      });
+  }
+
+  aktuellerStundenTag = tag;
+
+  document.querySelectorAll(".tag").forEach(function(t){
+    t.classList.remove("stundenTagAktiv");
+  });
+
+  element.classList.add("stundenTagAktiv");
+
+  speichereSupabaseState();
+}  
+  let ausgewaehlteStunde = null;
+
+function oeffneStundenReflexion(stunde){
+
+  ausgewaehlteStunde = stunde;
+
+  document.getElementById("reflexionsTitel").textContent =
+    "Wie war die Stunde?";
+
+  document.getElementById("reflexionsFrage").style.display =
+    "none";
+
+  document.getElementById("reflexionsTage").style.display =
+    "none";
+
+  oeffneReflexion();
+}
+  
+function oeffneTagesReflexion(){
+
+  ausgewaehlteStunde = null;
+
+  document.getElementById("reflexionsTitel").textContent =
+    "Unsere Tagesreflexion";
+
+  document.getElementById("reflexionsFrage").style.display =
+    "";
+
+  document.getElementById("reflexionsTage").style.display =
+    "";
+
+  oeffneReflexion();
+}  
+function oeffneReflexion(){
+
+  document.getElementById("reflexionsFenster").style.display =
+    "flex";
+}
+
+
+function schliesseReflexion(){
+
+  document.getElementById("reflexionsFenster").style.display =
+    "none";
+}
+
+
+function waehleTag(n,button){
+
+  ausgewaehlterTag = n;
+
+  document.querySelectorAll(".tagauswahl button")
+    .forEach(function(b){
+
+      b.classList.remove("aktiv");
+
+    });
+
+  button.classList.add("aktiv");
+}
+
+
+function speichereErgebnis(symbol){
+if(ausgewaehlteStunde !== null){
+
+  const stundenFelder =
+    document.querySelectorAll(".stundenErgebnis");
+
+  const feld =
+    stundenFelder[ausgewaehlteStunde];
+
+  feld.dataset.symbol = symbol;
+
+  if(symbol === "🐧"){
+    feld.innerHTML =
+      '<img src="' +
+      pinguinKopfBild +
+      '" alt="Blüte">';
+  } else {
+    feld.innerHTML =
+      '<img src="' +
+      eisbergBild +
+      '" alt="Samen">';
+  }
+
+  ausgewaehlteStunde = null;
+  schliesseReflexion();
+  pruefeStundenTag();
+  speichereSupabaseState();
+  return;
+}
+  function pruefeStundenTag(){
+
+  const stundenFelder =
+    document.querySelectorAll(".stundenErgebnis");
+
+  // Erst auswerten, wenn alle 4 Stunden eingetragen sind
+  const alleGefuellt =
+    Array.from(stundenFelder).every(
+      feld => feld.dataset.symbol
+    );
+
+  if (!alleGefuellt) return;
+  if (!aktuellerStundenTag) return;
+
+  // Erfolgreiche Stunden zählen
+  const erfolgreicheStunden =
+    Array.from(stundenFelder).filter(
+      feld => feld.dataset.symbol === "🐧"
+    ).length;
+
+  const tage = document.querySelectorAll(".tag");
+  const tagIndex = {
+    MO: 0,
+    DI: 1,
+    MI: 2,
+    DO: 3,
+    FR: 4
+  }[aktuellerStundenTag];
+
+  if (tagIndex === undefined) return;
+
+  const tagesFeld =
+    tage[tagIndex].querySelector(".ergebnis");
+
+  if (erfolgreicheStunden >= 3) {
+    tagesFeld.dataset.symbol = "🐧";
+    tagesFeld.innerHTML =
+      '<img src="https://i.ibb.co/JjZHzVWG/7-FB6-AE73-FCEE-40-DF-94-A2-5-AE8-DBFA8290.png" alt="Blüte">';
+  } else {
+    tagesFeld.dataset.symbol = "❄️";
+    tagesFeld.innerHTML =
+      '<img src="https://i.ibb.co/wx7ydx9/CA9-A2882-422-E-4267-A9-A0-7580-F7565-ADA.png" alt="Samen">';
+  }
+
+  pruefeWoche();
+}
+  const felder =
+    document.querySelectorAll(".tag .ergebnis");
+
+  const feld =
+    felder[ausgewaehlterTag];
+
+  feld.dataset.symbol = symbol;
+
+
+  if(symbol === "🐧"){
+
+    feld.innerHTML =
+      '<img src="' +
+      pinguinKopfBild +
+      '" alt="Pinguin">';
+
+  } else {
+
+    feld.innerHTML =
+      '<img src="' +
+      eisbergBild +
+      '" alt="Eisberg">';
+  }
+
+
+  schliesseReflexion();
+
+  pruefeWoche();
+speichereSupabaseState();
+}
+
+
+/* WOCHENAUSWERTUNG */
+
+function pruefeWoche(){
+
+  const felder =
+    document.querySelectorAll(".tag .ergebnis");
+
+  let ausgefuellt = 0;
+  let pinguine = 0;
+
+
+  felder.forEach(function(feld){
+
+    const symbol =
+      feld.dataset.symbol || "";
+
+    if(symbol !== ""){
+      ausgefuellt++;
+    }
+
+    if(symbol === "🐧"){
+      pinguine++;
+    }
+
+  });
+
+
+  /* ERST NACH ALLEN 5 TAGEN */
+
+  if(ausgefuellt < 5){
+    return;
+  }
+
+
+  if(wocheSchonGewertet){
+    return;
+  }
+
+
+  wocheSchonGewertet = true;
+
+
+  /* MINDESTENS 3 PINGUINE */
+
+  if(pinguine >= 3){
+
+    erfolgreicheWochen++;
+
+
+    document.getElementById("wochenZahl").textContent =
+      erfolgreicheWochen;
+
+
+    if(erfolgreicheWochen >= 1){
+
+      document.getElementById("eisscholle").style.display =
+        "block";
+    }
+
+
+    if(erfolgreicheWochen >= 2){
+
+      document.getElementById("schollenPinguin").style.display =
+        "block";
+    }
+
+
+    if(erfolgreicheWochen >= 3){
+
+      document.getElementById("seerobbe").style.display =
+        "block";
+    }
+
+
+    document.getElementById("wochenTitel").textContent =
+      "Wir haben unser Wochenziel erreicht! ❄️";
+
+    document.getElementById("wochenText").textContent =
+      "";
+
+  } else {
+
+    document.getElementById("wochenTitel").textContent =
+      "Wir bleiben dran! ❄️";
+
+    document.getElementById("wochenText").textContent =
+      "";
+  }
+
+
+  document.getElementById("wochenFenster").style.display =
+    "flex";
+
+
+  document.getElementById("neueWocheButton").style.display =
+    "block";
+}
+
+
+function schliesseWochenFenster(){
+
+  document.getElementById("wochenFenster").style.display =
+    "none";
+}
+
+
+/* NEUE WOCHE */
+
+function frageNeueWoche(){
+
+  /*
+     FELD BEIM ÖFFNEN LEER MACHEN.
+     DAS NEUE ZIEL WIRD ALSO IMMER
+     FREI EINGETIPPT.
+  */
+
+  document.getElementById("neuesWochenzielEingabe").value =
+    "";
+
+  document.getElementById("neueWocheFenster").style.display =
+    "flex";
+
+  document.getElementById("neuesWochenzielEingabe").focus();
+}
+
+
+function schliesseNeueWocheFenster(){
+
+  document.getElementById("neueWocheFenster").style.display =
+    "none";
+}
+
+
+function starteNeueWoche(){
+
+  /*
+     ERST DAS NEUE WOCHENZIEL PRÜFEN
+  */
+
+  const neuesZiel =
+    document.getElementById("neuesWochenzielEingabe").value.trim();
+
+
+  /*
+     OHNE NEUES ZIEL STARTET
+     DIE NEUE WOCHE NICHT.
+  */
+
+  if(neuesZiel === ""){
+    return;
+  }
+
+
+  /*
+     NEUES WOCHENZIEL ÜBERNEHMEN
+  */
+
+  document.getElementById("wochenzielText").textContent =
+    neuesZiel;
+
+
+  /*
+     MO-FR LEEREN
+  */
+
+  document.querySelectorAll(".tag .ergebnis")
+    .forEach(function(feld){
+
+      feld.innerHTML = "";
+
+      delete feld.dataset.symbol;
+
+    });
+// STUNDEN 1–4 LEEREN
+document.querySelectorAll(".stundenErgebnis")
+  .forEach(function(feld){
+    feld.innerHTML = "";
+    delete feld.dataset.symbol;
+  });
+
+// AUSGEWÄHLTEN STUNDENTAG ZURÜCKSETZEN
+aktuellerStundenTag = null;
+
+document.querySelectorAll(".tag").forEach(function(tag){
+  tag.classList.remove("stundenTagAktiv");
+});
+
+  /*
+     TAGESAUSWAHL ZURÜCKSETZEN
+  */
+
+  document.querySelectorAll(".tagauswahl button")
+    .forEach(function(button){
+
+      button.classList.remove("aktiv");
+
+    });
+
+
+  /*
+     NEUE WOCHE FREIGEBEN
+  */
+
+  wocheSchonGewertet = false;
+
+  ausgewaehlterTag = 0;
+
+
+  /*
+     BUTTON WIEDER AUSBLENDEN
+  */
+
+  document.getElementById("neueWocheButton").style.display =
+    "none";
+
+
+  /*
+     FENSTER SCHLIESSEN
+  */
+speichereSupabaseState();
+  schliesseNeueWocheFenster();
+}
+
+</script>
+
+<script>
+const SUPABASE_URL = "https://adgvgtzbdlqtefznxkzg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZ3ZndHpiZGxxdGVmem54a3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxODU5NzgsImV4cCI6MjEwNTc2MTk3OH0.0brPR_2kBgSYlMVo8uxRfXtmDpy_BOcBQaIjqz5bW8I";
+
+async function ladeSupabaseState() {
+  try {
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/class_state?id=eq.1&select=*",
+      {
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Supabase-Ladefehler:", data);
+      return;
+    }
+
+    if (!data.length) {
+      console.error("Kein Datensatz in class_state gefunden.");
+      return;
+    }
+
+    const state = data[0];
+
+// Wochenziel wiederherstellen
+document.getElementById("wochenzielText").textContent = state.weekly_goal;
+
+// Tagesergebnisse wiederherstellen
+const felder = document.querySelectorAll(".tag .ergebnis");
+
+const gespeicherteErgebnisse = [
+  state.result_mo,
+  state.result_di,
+  state.result_mi,
+  state.result_do,
+  state.result_fr
+];
+
+gespeicherteErgebnisse.forEach((ergebnis, index) => {
+  const feld = felder[index];
+
+  feld.innerHTML = "";
+  feld.dataset.symbol = "";
+
+  if (!ergebnis) return;
+
+  if (ergebnis === "penguin") {
+    feld.dataset.symbol = "🐧";
+    feld.innerHTML =
+      '<img src="' +
+      pinguinKopfBild +
+      '" alt="Pinguin">';
+  } else {
+    feld.dataset.symbol = "❄️";
+    feld.innerHTML =
+      '<img src="' +
+      eisbergBild +
+      '" alt="Eisberg">';
+  }
+});
+// Stunden-Ergebnisse wiederherstellen
+const stundenFelder =
+  document.querySelectorAll(".stundenErgebnis");
+
+const gespeicherteStunden = [
+  state.lesson_1,
+  state.lesson_2,
+  state.lesson_3,
+  state.lesson_4
+];
+
+gespeicherteStunden.forEach((ergebnis, index) => {
+  const feld = stundenFelder[index];
+
+  feld.innerHTML = "";
+  feld.dataset.symbol = "";
+
+  if (!ergebnis) return;
+
+  if (ergebnis === "penguin") {
+    feld.dataset.symbol = "🐧";
+    feld.innerHTML =
+      '<img src="https://i.ibb.co/JjZHzVWG/7-FB6-AE73-FCEE-40-DF-94-A2-5-AE8-DBFA8290.png" alt="Blüte">';
+  } else {
+    feld.dataset.symbol = "❄️";
+    feld.innerHTML =
+      '<img src="https://i.ibb.co/wx7ydx9/CA9-A2882-422-E-4267-A9-A0-7580-F7565-ADA.png" alt="Samen">';
+  }
+});
+    // Ausgewählten Stundentag wiederherstellen
+aktuellerStundenTag = state.lesson_day || null;
+
+if (aktuellerStundenTag) {
+  const tage = document.querySelectorAll(".tag");
+  const tagIndex = {
+    MO: 0,
+    DI: 1,
+    MI: 2,
+    DO: 3,
+    FR: 4
+  }[aktuellerStundenTag];
+
+  if (tagIndex !== undefined) {
+    tage[tagIndex].classList.add("stundenTagAktiv");
+  }
+}
+// Erfolgreiche Wochen wiederherstellen
+   
+    erfolgreicheWochen = Number(state.successful_weeks || 0);
+document.getElementById("wochenZahl").textContent = erfolgreicheWochen;
+
+// Wochenstatus wiederherstellen
+wocheSchonGewertet = state.week_evaluated === true;
+    document.getElementById("neueWocheButton").style.display =
+  wocheSchonGewertet ? "block" : "none";
+
+// Arktis passend zum Wochenstand wiederherstellen
+if (erfolgreicheWochen >= 1) {
+  document.getElementById("eisscholle").style.display = "block";
+}
+
+if (erfolgreicheWochen >= 2) {
+  document.getElementById("schollenPinguin").style.display = "block";
+}
+
+if (erfolgreicheWochen >= 3) {
+  document.getElementById("seerobbe").style.display = "block";
+}
+
+console.log("Supabase-Zustand vollständig geladen:", state);
+
+  } catch (error) {
+    console.error("Supabase-Verbindungsfehler:", error);
+  }
+}
+async function speichereSupabaseState() {
+  try {
+    const felder = document.querySelectorAll(".tag .ergebnis");
+const stundenFelder =
+  document.querySelectorAll(".stundenErgebnis");
+    const wertFuerSupabase = (feld) => {
+      if (!feld || !feld.dataset.symbol) return null;
+      return feld.dataset.symbol === "🐧" ? "penguin" : "iceberg";
+    };
+
+    const state = {
+      weekly_goal: document.getElementById("wochenzielText").textContent.trim(),
+      result_mo: wertFuerSupabase(felder[0]),
+      result_di: wertFuerSupabase(felder[1]),
+      result_mi: wertFuerSupabase(felder[2]),
+      result_do: wertFuerSupabase(felder[3]),
+      result_fr: wertFuerSupabase(felder[4]),
+      lesson_1: wertFuerSupabase(stundenFelder[0]),
+lesson_2: wertFuerSupabase(stundenFelder[1]),
+lesson_3: wertFuerSupabase(stundenFelder[2]),
+lesson_4: wertFuerSupabase(stundenFelder[3]),
+      lesson_day: aktuellerStundenTag,
+      successful_weeks: erfolgreicheWochen,
+      week_evaluated: wocheSchonGewertet
+    };
+
+    const response = await fetch(
+      SUPABASE_URL + "/rest/v1/class_state?id=eq.1",
+      {
+        method: "PATCH",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(state)
+      }
+    );
+
+    if (!response.ok) {
+      const fehler = await response.text();
+      console.error("Supabase-Speicherfehler:", fehler);
+      return;
+    }
+
+    console.log("Supabase-Zustand gespeichert.");
+  } catch (error) {
+    console.error("Supabase-Speicherfehler:", error);
+  }
+}
+ladeSupabaseState();</script></body>
+</html>
