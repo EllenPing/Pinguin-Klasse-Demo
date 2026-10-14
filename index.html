@@ -1192,30 +1192,19 @@ const SUPABASE_URL = "https://adgvgtzbdlqtefznxkzg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZ3ZndHpiZGxxdGVmem54a3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxODU5NzgsImV4cCI6MjEwNTc2MTk3OH0.0brPR_2kBgSYlMVo8uxRfXtmDpy_BOcBQaIjqz5bW8I";
 
 async function ladeSupabaseState() {
-  try {
-    const response = await fetch(
-      SUPABASE_URL + "/rest/v1/class_state?id=eq.1&select=*",
-      {
-        headers: {
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": "Bearer " + SUPABASE_ANON_KEY
-        }
-      }
-    );
+const gespeichert = localStorage.getItem("pinguin-demo");
 
-    const data = await response.json();
+if (!gespeichert) {
+  localStorage.setItem("pinguin-demo", JSON.stringify({
+    weekly_goal: "",
+    successful_weeks: 0,
+    week_evaluated: false
+  }));
+  return;
+}
 
-    if (!response.ok) {
-      console.error("Supabase-Ladefehler:", data);
-      return;
-    }
-
-    if (!data.length) {
-      console.error("Kein Datensatz in class_state gefunden.");
-      return;
-    }
-
-    const state = data[0];
+const state = JSON.parse(gespeichert);
+try {
 
 // Wochenziel wiederherstellen
 document.getElementById("wochenzielText").textContent = state.weekly_goal;
@@ -1239,7 +1228,7 @@ gespeicherteErgebnisse.forEach((ergebnis, index) => {
 
   if (!ergebnis) return;
 
-  if (ergebnis === "penguin") {
+  if (ergebnis === "🐧" || ergebnis === "penguin") {
     feld.dataset.symbol = "🐧";
     feld.innerHTML =
       '<img src="' +
@@ -1272,7 +1261,7 @@ gespeicherteStunden.forEach((ergebnis, index) => {
 
   if (!ergebnis) return;
 
-  if (ergebnis === "penguin") {
+  if (ergebnis === "🐧" || ergebnis === "penguin") {
     feld.dataset.symbol = "🐧";
     feld.innerHTML =
       '<img src="https://i.ibb.co/JjZHzVWG/7-FB6-AE73-FCEE-40-DF-94-A2-5-AE8-DBFA8290.png" alt="Blüte">';
@@ -1329,7 +1318,23 @@ console.log("Supabase-Zustand vollständig geladen:", state);
   }
 }
 async function speichereSupabaseState() {
-  try {
+localStorage.setItem("pinguin-demo", JSON.stringify({
+  weekly_goal: document.getElementById("wochenzielText").textContent.trim(),
+  result_mo: document.querySelectorAll(".tag .ergebnis")[0]?.dataset.symbol || null,
+  result_di: document.querySelectorAll(".tag .ergebnis")[1]?.dataset.symbol || null,
+  result_mi: document.querySelectorAll(".tag .ergebnis")[2]?.dataset.symbol || null,
+  result_do: document.querySelectorAll(".tag .ergebnis")[3]?.dataset.symbol || null,
+  result_fr: document.querySelectorAll(".tag .ergebnis")[4]?.dataset.symbol || null,
+  lesson_1: document.querySelectorAll(".stundenErgebnis")[0]?.dataset.symbol || null,
+  lesson_2: document.querySelectorAll(".stundenErgebnis")[1]?.dataset.symbol || null,
+  lesson_3: document.querySelectorAll(".stundenErgebnis")[2]?.dataset.symbol || null,
+  lesson_4: document.querySelectorAll(".stundenErgebnis")[3]?.dataset.symbol || null,
+  lesson_day: aktuellerStundenTag,
+  successful_weeks: erfolgreicheWochen,
+  week_evaluated: wocheSchonGewertet
+}));
+return;
+try {
     const felder = document.querySelectorAll(".tag .ergebnis");
 const stundenFelder =
   document.querySelectorAll(".stundenErgebnis");
