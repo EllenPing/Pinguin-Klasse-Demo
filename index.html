@@ -544,7 +544,14 @@ body{
   ❄️ Neue Woche
 </button>
 
-
+<button
+  onclick="demoZuruecksetzen()"
+  style="position:fixed;bottom:4%;left:3%;z-index:20;
+         padding:10px 16px;border-radius:20px;
+         border:2px solid white;background:#ffffffdd;
+         color:#28637f;font-weight:bold;cursor:pointer;">
+  🔄 Demo zurücksetzen
+</button>
 
 <!-- WOCHENZIEL MIT STIFT ÄNDERN -->
 
@@ -1384,5 +1391,10 @@ lesson_4: wertFuerSupabase(stundenFelder[3]),
     console.error("Supabase-Speicherfehler:", error);
   }
 }
-ladeSupabaseState();</script></body>
+ladeSupabaseState();function demoZuruecksetzen() {
+  if (!confirm("Demo wirklich auf 0 zurücksetzen?")) return;
+
+  localStorage.removeItem("pinguin-demo");
+  location.reload();
+}</script></body>
 </html>
